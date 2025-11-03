@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs "node17" // or whatever name you set under Manage Jenkins > Tools > NodeJS
+        nodejs "node17"
     }
 
     stages {
@@ -14,7 +14,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh 'npm ci || npm install'
             }
         }
 
@@ -26,15 +26,14 @@ pipeline {
 
         stage('Archive Build Files') {
             steps {
-                archiveArtifacts artifacts: 'build/**', fingerprint: true
+                archiveArtifacts artifacts: 'dist/**', fingerprint: true
             }
         }
 
         stage('Deploy (optional)') {
             steps {
-                echo 'Deploying the React app...'
-                // Example: Copy build to your web server or serve locally
-                // sh 'scp -r build/* user@server:/var/www/html/'
+                echo 'Deploying the built app...'
+                // Example: sh 'cp -r dist/* /var/www/html/'
             }
         }
     }
