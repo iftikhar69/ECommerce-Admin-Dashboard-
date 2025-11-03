@@ -8,7 +8,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/iftikhar69/ECommerce-Admin-Dashboard-.git'
+                git branch: 'main',
+                    credentialsId: 'github-token',
+                    url: 'https://github.com/iftikhar69/ECommerce-Admin-Dashboard-.git'
             }
         }
 
@@ -27,13 +29,6 @@ pipeline {
         stage('Archive Build Files') {
             steps {
                 archiveArtifacts artifacts: 'dist/**', fingerprint: true
-            }
-        }
-
-        stage('Deploy (optional)') {
-            steps {
-                echo 'Deploying the built app...'
-                // Example: sh 'cp -r dist/* /var/www/html/'
             }
         }
     }
