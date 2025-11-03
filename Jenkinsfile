@@ -1,35 +1,50 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs "node17"
+    environment {
+        NODE_OPTIONS = "--max_old_space_size=4096"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                git branch: 'main',
-                    credentialsId: 'github-token',
-                    url: 'https://github.com/iftikhar69/ECommerce-Admin-Dashboard-.git'
+                echo 'Cloning repository...'
+                checkout scm
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm ci || npm install'
+                echo 'Installing dependencies...'
+                sh 'npm install'
             }
         }
 
-        stage('Build React App') {
+        stage('Build Project') {
             steps {
+                echo 'Building project...'
                 sh 'npm run build'
             }
         }
 
-        stage('Archive Build Files') {
+        stage('Deploy to Nginx') {
             steps {
-                archiveArtifacts artifacts: 'dist/**', fingerprint: true
+                echo 'Deploying build files to Nginx web root...'
+                sh '''
+                sudo rm -rf /var/www/html/*
+                sudo cp -r dist/* /var/www/html/
+                sudo systemctl restart nginx
+                '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Deployment successful!'
+        }
+        failure {
+            echo '❌ Build failed — check the logs for details.'
         }
     }
 }
